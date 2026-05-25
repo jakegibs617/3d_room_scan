@@ -1,6 +1,6 @@
 export interface RoomPlanScanResult {
   success: boolean;
-  cancelled: boolean;
+  cancelled?: boolean;
   message: string;
   usdzPath?: string;
   usdzUrl?: string;

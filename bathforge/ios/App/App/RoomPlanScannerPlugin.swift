@@ -32,16 +32,17 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
             return
         }
 
+        scanCall = call
+
         DispatchQueue.main.async {
             guard let presentingViewController = self.bridge?.viewController else {
+                self.scanCall = nil
                 call.resolve(self.scanResult(
                     success: false,
                     message: "Unable to find a view controller to present the scanner."
                 ))
                 return
             }
-
-            self.scanCall = call
 
             let scanViewController = RoomPlanScanViewController()
             scanViewController.delegate = self

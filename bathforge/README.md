@@ -4,6 +4,8 @@ BathForge is an Ionic + Capacitor iOS proof of concept for launching a native Ap
 
 This slice implements the app shell, an inline Capacitor iOS plugin named `RoomPlanScanner`, RoomPlan availability handling, native scan presentation, cancellation, metadata return, and best-effort USDZ export.
 
+The Ionic UI also keeps the five most recent scan responses in local webview storage so recent success, cancellation, and unsupported-device responses remain visible after relaunching the app.
+
 ## Prerequisites
 
 - Node.js 18+ for this starter; Node 22+ is recommended for newer Ionic/Capacitor tooling.
@@ -82,6 +84,8 @@ In Xcode:
 
 Exact counts, `usdzPath`, and `usdzUrl` vary by scan and OS version. `roomName` is a fixed display label because RoomPlan does not provide a room name. Use `usdzUrl` for web-view loading and `usdzPath` for native file operations such as sharing through Capacitor plugins. Unsupported devices should display a clean error response instead of crashing.
 
+The Recent Scans section stores only the returned metadata JSON in local app storage. It does not upload scan data or sync projects.
+
 ## Current Limitations
 
 - Android is intentionally not included.
@@ -94,5 +98,6 @@ Exact counts, `usdzPath`, and `usdzUrl` vary by scan and OS version. `roomName` 
 - If the app crashes before scanning, confirm `NSCameraUsageDescription` is present in `ios/App/App/Info.plist`.
 - If the native plugin is unavailable, confirm `Main.storyboard` uses `MainViewController` and that `RoomPlanScannerPlugin.swift` is included in the App target sources.
 - If Xcode cannot find a destination, install the missing iOS platform/runtime from Xcode Settings, then reopen `ios/App/App.xcworkspace`.
+- If command-line `xcodebuild` reports `iOS 26.4 is not installed` or a similar missing-platform message, install that iOS platform from Xcode Settings > Components before retrying the native build.
 - If the scanner reports unsupported hardware, test on a LiDAR-capable device such as an iPhone Pro model that supports RoomPlan.
 - After editing web code, run `npm run build && npx cap copy ios` before rebuilding in Xcode.
