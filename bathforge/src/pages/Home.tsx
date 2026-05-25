@@ -86,7 +86,6 @@ const Home: React.FC = () => {
         setAvailability({
           supported: false,
           message,
-          platform: 'web',
           timestamp: new Date().toISOString(),
         });
       });
@@ -160,17 +159,6 @@ const Home: React.FC = () => {
         </IonHeader>
 
         <div className="home">
-          <IonButton expand="block" size="large" onClick={startScan} disabled={isScanning}>
-            {isScanning ? (
-              <>
-                <IonSpinner name="crescent" />
-                Scanning
-              </>
-            ) : (
-              'Start Bathroom Scan'
-            )}
-          </IonButton>
-
           {availability && (
             <IonCard>
               <IonCardHeader>
@@ -184,6 +172,17 @@ const Home: React.FC = () => {
               <IonCardContent>{availability.message}</IonCardContent>
             </IonCard>
           )}
+
+          <IonButton expand="block" size="large" onClick={startScan} disabled={isScanning}>
+            {isScanning ? (
+              <>
+                <IonSpinner name="crescent" />
+                Scanning
+              </>
+            ) : (
+              'Start Bathroom Scan'
+            )}
+          </IonButton>
 
           {errorMessage && (
             <IonCard color="danger">

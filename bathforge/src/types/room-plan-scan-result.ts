@@ -15,6 +15,6 @@ export interface RoomPlanScanResult {
 export interface RoomPlanScannerAvailability {
   supported: boolean;
   message: string;
-  platform: 'ios' | 'web';
+  platform?: 'ios' | 'web';
   timestamp: string;
 }
