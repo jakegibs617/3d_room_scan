@@ -69,7 +69,7 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
     }
 
     func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFinishWith capturedRoom: CapturedRoom) {
-        let scanFileName = "bathforge-scan-\(UUID().uuidString)"
+        let scanFileName = "bathforge-scan-\(Int(Date().timeIntervalSince1970))-\(UUID().uuidString)"
         var result = scanResult(
             success: true,
             message: "Bathroom scan completed.",
@@ -91,11 +91,13 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         }
 
         do {
+            // Write metadata before jsonPath/jsonUrl are added so the file does not describe itself.
             let metadataResult = try writeMetadata(result, fileName: scanFileName)
             result["jsonPath"] = metadataResult.path
             result["jsonUrl"] = metadataResult.url
         } catch {
-            result["message"] = "\(result["message"] ?? "Bathroom scan completed."), and metadata export failed: \(error.localizedDescription)"
+            let priorMessage = (result["message"] as? String) ?? "Bathroom scan completed."
+            result["message"] = "\(priorMessage), and metadata export failed: \(error.localizedDescription)"
         }
 
         finishScan(from: viewController, result: result)

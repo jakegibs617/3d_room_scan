@@ -25,6 +25,7 @@ test('persists recent scan responses', async () => {
     success: true,
     message: 'Saved scan',
     jsonPath: '/Documents/RoomPlanScans/bathforge-scan.json',
+    jsonUrl: 'capacitor://localhost/_capacitor_file_/RoomPlanScans/bathforge-scan.json',
     timestamp: '2026-05-25T21:00:00.000Z',
   };
 
@@ -34,6 +35,9 @@ test('persists recent scan responses', async () => {
 
   expect(await screen.findByRole('heading', { name: /recent scans/i })).toBeDefined();
   expect(screen.getByText(/saved scan/i)).toBeDefined();
+  await waitFor(() => {
+    expect(JSON.parse(window.localStorage.getItem('bathforge:recent-scans') ?? '[]')).toEqual([storedScan]);
+  });
 
   fireEvent.click(screen.getByText(/clear recent scans/i));
 
