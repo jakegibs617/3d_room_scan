@@ -13,7 +13,7 @@ class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureV
 
     private let roomCaptureView = RoomCaptureView(frame: .zero)
     private var hasStartedScanning = false
-    private var hasFinished = false
+    private var hasResolvedScan = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,42 +57,47 @@ class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureV
     }
 
     @objc private func cancelScan() {
-        guard !hasFinished else {
+        guard !hasResolvedScan else {
             return
         }
 
-        hasFinished = true
+        hasResolvedScan = true
         roomCaptureView.captureSession.stop()
         delegate?.roomPlanScanViewControllerDidCancel(self)
     }
 
     @objc private func finishScan() {
-        guard !hasFinished else {
+        guard hasStartedScanning, !hasResolvedScan else {
             return
         }
 
+        title = "Processing Scan"
         navigationItem.leftBarButtonItem?.isEnabled = false
         navigationItem.rightBarButtonItem?.isEnabled = false
         roomCaptureView.captureSession.stop()
     }
 
     func captureView(shouldPresent roomDataForProcessing: CapturedRoomData, error: Error?) -> Bool {
+        guard !hasResolvedScan else {
+            return false
+        }
+
         if let error = error {
-            hasFinished = true
+            hasResolvedScan = true
             roomCaptureView.captureSession.stop()
             delegate?.roomPlanScanViewController(self, didFailWithMessage: error.localizedDescription)
             return false
         }
 
-        return !hasFinished
+        return true
     }
 
     func captureView(didPresent processedResult: CapturedRoom, error: Error?) {
-        guard !hasFinished else {
+        guard !hasResolvedScan else {
             return
         }
 
-        hasFinished = true
+        hasResolvedScan = true
 
         if let error = error {
             delegate?.roomPlanScanViewController(self, didFailWithMessage: error.localizedDescription)
