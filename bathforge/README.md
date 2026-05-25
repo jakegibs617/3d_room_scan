@@ -70,15 +70,17 @@ In Xcode:
 ```json
 {
   "success": true,
+  "cancelled": false,
   "message": "Bathroom scan completed.",
   "wallCount": 4,
   "objectCount": 1,
   "roomName": "Bathroom Scan",
-  "usdzPath": "/path/to/bathforge-scan.usdz"
+  "usdzPath": "/path/to/bathforge-scan.usdz",
+  "usdzUrl": "capacitor://localhost/_capacitor_file_/path/to/bathforge-scan.usdz"
 }
 ```
 
-Exact counts and `usdzPath` vary by scan and OS version. Unsupported devices should display a clean error response instead of crashing.
+Exact counts, `usdzPath`, and `usdzUrl` vary by scan and OS version. `roomName` is a fixed display label because RoomPlan does not provide a room name. Use `usdzUrl` for web-view loading and `usdzPath` for native file operations such as sharing through Capacitor plugins. Unsupported devices should display a clean error response instead of crashing.
 
 ## Current Limitations
 

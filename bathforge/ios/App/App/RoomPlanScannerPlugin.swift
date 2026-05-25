@@ -11,6 +11,8 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         CAPPluginMethod(name: "startScan", returnType: CAPPluginReturnPromise)
     ]
 
+    private static let timestampFormatter = ISO8601DateFormatter()
+
     private var scanCall: CAPPluginCall?
 
     @objc func startScan(_ call: CAPPluginCall) {
@@ -50,7 +52,7 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         }
     }
 
-    public func roomPlanScanViewControllerDidCancel(_ viewController: RoomPlanScanViewController) {
+    func roomPlanScanViewControllerDidCancel(_ viewController: RoomPlanScanViewController) {
         finishScan(from: viewController, result: scanResult(
             success: false,
             cancelled: true,
@@ -58,14 +60,14 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         ))
     }
 
-    public func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFailWithMessage message: String) {
+    func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFailWithMessage message: String) {
         finishScan(from: viewController, result: scanResult(
             success: false,
             message: message
         ))
     }
 
-    public func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFinishWith capturedRoom: CapturedRoom) {
+    func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFinishWith capturedRoom: CapturedRoom) {
         var result = scanResult(
             success: true,
             message: "Bathroom scan completed.",
@@ -76,7 +78,9 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
 
         if #available(iOS 16.1, *) {
             do {
-                result["usdzPath"] = try export(capturedRoom)
+                let exportResult = try export(capturedRoom)
+                result["usdzPath"] = exportResult.path
+                result["usdzUrl"] = exportResult.url
             } catch {
                 result["message"] = "Bathroom scan completed, but USDZ export failed: \(error.localizedDescription)"
             }
@@ -97,7 +101,7 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
     }
 
     @available(iOS 16.1, *)
-    private func export(_ capturedRoom: CapturedRoom) throws -> String {
+    private func export(_ capturedRoom: CapturedRoom) throws -> (path: String, url: String?) {
         let documentsDirectory = try FileManager.default.url(
             for: .documentDirectory,
             in: .userDomainMask,
@@ -111,7 +115,8 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         let destinationURL = scansDirectory.appendingPathComponent(fileName)
 
         try capturedRoom.export(to: destinationURL, exportOptions: .parametric)
-        return destinationURL.path
+        let portableURL = bridge?.portablePath(fromLocalURL: destinationURL)?.absoluteString
+        return (destinationURL.path, portableURL)
     }
 
     private func scanResult(
@@ -125,12 +130,9 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         var result: [String: Any] = [
             "success": success,
             "message": message,
-            "timestamp": ISO8601DateFormatter().string(from: Date())
+            "cancelled": cancelled ?? false,
+            "timestamp": Self.timestampFormatter.string(from: Date())
         ]
-
-        if let cancelled = cancelled {
-            result["cancelled"] = cancelled
-        }
 
         if let wallCount = wallCount {
             result["wallCount"] = wallCount

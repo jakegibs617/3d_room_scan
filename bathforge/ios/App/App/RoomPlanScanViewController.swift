@@ -1,21 +1,21 @@
 import RoomPlan
 import UIKit
 
-public protocol RoomPlanScanViewControllerDelegate: AnyObject {
+protocol RoomPlanScanViewControllerDelegate: AnyObject {
     func roomPlanScanViewControllerDidCancel(_ viewController: RoomPlanScanViewController)
     func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFailWithMessage message: String)
     func roomPlanScanViewController(_ viewController: RoomPlanScanViewController, didFinishWith capturedRoom: CapturedRoom)
 }
 
 @MainActor
-public class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureViewDelegate {
+class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureViewDelegate {
     weak var delegate: RoomPlanScanViewControllerDelegate?
 
     private let roomCaptureView = RoomCaptureView(frame: .zero)
     private var hasStartedScanning = false
     private var hasFinished = false
 
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
 
         title = "Bathroom Scan"
@@ -44,7 +44,7 @@ public class RoomPlanScanViewController: UIViewController, @preconcurrency RoomC
         ])
     }
 
-    public override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         guard !hasStartedScanning else {
@@ -76,9 +76,10 @@ public class RoomPlanScanViewController: UIViewController, @preconcurrency RoomC
         roomCaptureView.captureSession.stop()
     }
 
-    public func captureView(shouldPresent roomDataForProcessing: CapturedRoomData, error: Error?) -> Bool {
+    func captureView(shouldPresent roomDataForProcessing: CapturedRoomData, error: Error?) -> Bool {
         if let error = error {
             hasFinished = true
+            roomCaptureView.captureSession.stop()
             delegate?.roomPlanScanViewController(self, didFailWithMessage: error.localizedDescription)
             return false
         }
@@ -86,7 +87,7 @@ public class RoomPlanScanViewController: UIViewController, @preconcurrency RoomC
         return !hasFinished
     }
 
-    public func captureView(didPresent processedResult: CapturedRoom, error: Error?) {
+    func captureView(didPresent processedResult: CapturedRoom, error: Error?) {
         guard !hasFinished else {
             return
         }
