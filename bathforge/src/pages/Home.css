@@ -21,3 +21,20 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+.home ion-list {
+  margin: 0 -16px;
+}
+
+.home ion-item h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.home ion-item p {
+  white-space: normal;
+}
+
+.clear-history-button {
+  margin-top: 12px;
+}
