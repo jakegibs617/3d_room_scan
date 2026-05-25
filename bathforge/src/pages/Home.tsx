@@ -1,4 +1,5 @@
 import {
+  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
@@ -17,7 +18,7 @@ import {
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { RoomPlanScanner } from '../plugins/room-plan-scanner';
-import type { RoomPlanScanResult } from '../types/room-plan-scan-result';
+import type { RoomPlanScannerAvailability, RoomPlanScanResult } from '../types/room-plan-scan-result';
 import './Home.css';
 
 const RECENT_SCANS_STORAGE_KEY = 'bathforge:recent-scans';
@@ -62,9 +63,38 @@ const loadRecentScans = (): RoomPlanScanResult[] => {
 
 const Home: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
+  const [availability, setAvailability] = useState<RoomPlanScannerAvailability | null>(null);
   const [scanResult, setScanResult] = useState<RoomPlanScanResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recentScans, setRecentScans] = useState<RoomPlanScanResult[]>(loadRecentScans);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    RoomPlanScanner.getAvailability()
+      .then((nextAvailability) => {
+        if (isMounted) {
+          setAvailability(nextAvailability);
+        }
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : 'Unable to check scanner availability.';
+        setAvailability({
+          supported: false,
+          message,
+          platform: 'web',
+          timestamp: new Date().toISOString(),
+        });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (recentScans.length === 0) {
@@ -140,6 +170,20 @@ const Home: React.FC = () => {
               'Start Bathroom Scan'
             )}
           </IonButton>
+
+          {availability && (
+            <IonCard>
+              <IonCardHeader>
+                <IonCardTitle className="scanner-status-title">
+                  Scanner Status
+                  <IonBadge color={availability.supported ? 'success' : 'medium'}>
+                    {availability.supported ? 'Ready' : 'Unavailable'}
+                  </IonBadge>
+                </IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>{availability.message}</IonCardContent>
+            </IonCard>
+          )}
 
           {errorMessage && (
             <IonCard color="danger">

@@ -20,6 +20,14 @@ test('shows web fallback scan response', async () => {
   ).not.toHaveLength(0);
 });
 
+test('shows scanner availability status', async () => {
+  render(<App />);
+
+  expect(await screen.findByText(/scanner status/i)).toBeDefined();
+  expect(screen.getByText(/unavailable/i)).toBeDefined();
+  expect(screen.getByText(/RoomPlan scanning is only available in the native iOS app/i)).toBeDefined();
+});
+
 test('persists recent scan responses', async () => {
   const storedScan = {
     success: true,

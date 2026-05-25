@@ -11,3 +11,10 @@ export interface RoomPlanScanResult {
   roomName?: string;
   timestamp: string;
 }
+
+export interface RoomPlanScannerAvailability {
+  supported: boolean;
+  message: string;
+  platform: 'ios' | 'web';
+  timestamp: string;
+}
