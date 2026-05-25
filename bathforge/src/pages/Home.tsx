@@ -39,6 +39,7 @@ const Home: React.FC = () => {
       setErrorMessage(message);
       setScanResult({
         success: false,
+        cancelled: false,
         message,
         timestamp: new Date().toISOString(),
       });

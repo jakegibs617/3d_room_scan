@@ -10,6 +10,7 @@ export const RoomPlanScanner = registerPlugin<RoomPlanScannerPlugin>('RoomPlanSc
     async startScan(): Promise<RoomPlanScanResult> {
       return {
         success: false,
+        cancelled: false,
         message: 'RoomPlan scanning is only available in the native iOS app.',
         timestamp: new Date().toISOString(),
       };
