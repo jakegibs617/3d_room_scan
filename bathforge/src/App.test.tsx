@@ -23,6 +23,7 @@ test('shows web fallback scan response', async () => {
 test('persists recent scan responses', async () => {
   const storedScan = {
     success: true,
+    cancelled: false,
     message: 'Saved scan',
     timestamp: '2026-05-25T21:00:00.000Z',
   };
