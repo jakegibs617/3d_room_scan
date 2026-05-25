@@ -78,6 +78,10 @@ class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureV
     }
 
     func captureView(shouldPresent roomDataForProcessing: CapturedRoomData, error: Error?) -> Bool {
+        guard !hasResolvedScan else {
+            return false
+        }
+
         if let error = error {
             hasResolvedScan = true
             roomCaptureView.captureSession.stop()
@@ -85,7 +89,7 @@ class RoomPlanScanViewController: UIViewController, @preconcurrency RoomCaptureV
             return false
         }
 
-        return !hasResolvedScan
+        return true
     }
 
     func captureView(didPresent processedResult: CapturedRoom, error: Error?) {
