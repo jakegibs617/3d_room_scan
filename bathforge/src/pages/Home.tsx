@@ -32,7 +32,7 @@ const isRecentScanResult = (scan: unknown): scan is RoomPlanScanResult => {
 
   return (
     typeof possibleScan.success === 'boolean' &&
-    typeof possibleScan.cancelled === 'boolean' &&
+    (typeof possibleScan.cancelled === 'undefined' || typeof possibleScan.cancelled === 'boolean') &&
     typeof possibleScan.message === 'string' &&
     typeof possibleScan.timestamp === 'string'
   );
