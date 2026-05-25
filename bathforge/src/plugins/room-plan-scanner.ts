@@ -1,12 +1,21 @@
 import { registerPlugin } from '@capacitor/core';
-import type { RoomPlanScanResult } from '../types/room-plan-scan-result';
+import type { RoomPlanScannerAvailability, RoomPlanScanResult } from '../types/room-plan-scan-result';
 
 export interface RoomPlanScannerPlugin {
+  getAvailability(): Promise<RoomPlanScannerAvailability>;
   startScan(): Promise<RoomPlanScanResult>;
 }
 
 export const RoomPlanScanner = registerPlugin<RoomPlanScannerPlugin>('RoomPlanScanner', {
   web: () => ({
+    async getAvailability(): Promise<RoomPlanScannerAvailability> {
+      return {
+        supported: false,
+        message: 'RoomPlan scanning is only available in the native iOS app.',
+        platform: 'web',
+        timestamp: new Date().toISOString(),
+      };
+    },
     async startScan(): Promise<RoomPlanScanResult> {
       return {
         success: false,

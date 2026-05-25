@@ -15,6 +15,13 @@
   margin-right: 10px;
 }
 
+.scanner-status-title {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
 .home pre {
   margin: 0;
   overflow-x: auto;

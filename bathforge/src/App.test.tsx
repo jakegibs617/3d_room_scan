@@ -20,6 +20,14 @@ test('shows web fallback scan response', async () => {
   ).not.toHaveLength(0);
 });
 
+test('shows scanner availability status', async () => {
+  render(<App />);
+
+  expect(await screen.findByText(/scanner status/i)).toBeInTheDocument();
+  expect(screen.getByText(/unavailable/i)).toBeInTheDocument();
+  expect(screen.getByText(/RoomPlan scanning is only available in the native iOS app/i)).toBeInTheDocument();
+});
+
 test('persists recent scan responses', async () => {
   const storedScan = {
     success: true,
@@ -33,8 +41,8 @@ test('persists recent scan responses', async () => {
 
   render(<App />);
 
-  expect(await screen.findByRole('heading', { name: /recent scans/i })).toBeDefined();
-  expect(screen.getByText(/saved scan/i)).toBeDefined();
+  expect(await screen.findByRole('heading', { name: /recent scans/i })).toBeInTheDocument();
+  expect(screen.getByText(/saved scan/i)).toBeInTheDocument();
   await waitFor(() => {
     expect(JSON.parse(window.localStorage.getItem('bathforge:recent-scans') ?? '[]')).toEqual([storedScan]);
   });

@@ -4,6 +4,8 @@ BathForge is an Ionic + Capacitor iOS proof of concept for launching a native Ap
 
 This slice implements the app shell, an inline Capacitor iOS plugin named `RoomPlanScanner`, RoomPlan availability handling, native scan presentation, cancellation, metadata return, and best-effort USDZ export.
 
+The home screen checks scanner availability on launch. Browser and unsupported-device runs show a clean unavailable status while still allowing the scan button to return a structured error response for testing.
+
 The Ionic UI also keeps the five most recent scan responses in local webview storage so recent success, cancellation, and unsupported-device responses remain visible after relaunching the app.
 
 ## Prerequisites
@@ -64,10 +66,11 @@ In Xcode:
 
 1. Launch BathForge on the iPhone.
 2. Tap **Start Bathroom Scan**.
-3. On a supported device, confirm the native RoomPlan scanner opens.
-4. Tap **Cancel** and confirm the Ionic UI displays a cancelled response.
-5. Start another scan, scan a bathroom, then tap **Done**.
-6. Confirm the Ionic UI displays JSON with:
+3. Confirm the Scanner Status card shows whether RoomPlan is ready.
+4. On a supported device, confirm the native RoomPlan scanner opens.
+5. Tap **Cancel** and confirm the Ionic UI displays a cancelled response.
+6. Start another scan, scan a bathroom, then tap **Done**.
+7. Confirm the Ionic UI displays JSON with:
 
 ```json
 {

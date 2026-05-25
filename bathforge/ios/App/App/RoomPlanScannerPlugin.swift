@@ -8,12 +8,17 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
     public let identifier = "RoomPlanScannerPlugin"
     public let jsName = "RoomPlanScanner"
     public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "getAvailability", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startScan", returnType: CAPPluginReturnPromise)
     ]
 
     private static let timestampFormatter = ISO8601DateFormatter()
 
     private var scanCall: CAPPluginCall?
+
+    @objc func getAvailability(_ call: CAPPluginCall) {
+        call.resolve(scannerAvailability())
+    }
 
     @objc func startScan(_ call: CAPPluginCall) {
         guard scanCall == nil else {
@@ -170,5 +175,19 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         }
 
         return result
+    }
+
+    private func scannerAvailability() -> [String: Any] {
+        let isSupported = RoomCaptureSession.isSupported
+        let message = isSupported
+            ? "RoomPlan scanning is ready on this device."
+            : "RoomPlan scanning requires a LiDAR-capable iPhone or iPad running iOS 16 or later."
+
+        return [
+            "supported": isSupported,
+            "message": message,
+            "platform": "ios",
+            "timestamp": Self.timestampFormatter.string(from: Date())
+        ]
     }
 }
