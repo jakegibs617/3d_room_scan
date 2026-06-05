@@ -152,6 +152,8 @@ const Home: React.FC = () => {
     }
   };
 
+  const previewPath = scanResult?.success ? scanResult.usdzPath : undefined;
+
   return (
     <IonPage>
       <IonHeader>
@@ -210,10 +212,10 @@ const Home: React.FC = () => {
                 {scanResult.wallCount !== undefined && (
                   <p>{scanResult.wallCount} walls · {scanResult.objectCount ?? 0} objects detected</p>
                 )}
-                {scanResult.usdzPath && (
+                {previewPath && (
                   <IonButton
                     expand="block"
-                    onClick={() => previewScan(scanResult!.usdzPath!)}
+                    onClick={() => previewScan(previewPath)}
                   >
                     Preview 3D Model
                   </IonButton>

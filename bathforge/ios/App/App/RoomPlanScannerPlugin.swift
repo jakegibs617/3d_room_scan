@@ -182,6 +182,11 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
     }
 
     @objc func previewScan(_ call: CAPPluginCall) {
+        guard previewCall == nil else {
+            call.reject("A preview is already active.")
+            return
+        }
+
         guard let filePath = call.getString("path") else {
             call.reject("Missing required parameter: path")
             return
@@ -215,7 +220,11 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
     }
 
     public func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
-        return previewURL! as NSURL
+        guard let url = previewURL else {
+            return URL(fileURLWithPath: "") as NSURL
+        }
+
+        return url as NSURL
     }
 
     public func previewControllerDidDismiss(_ controller: QLPreviewController) {

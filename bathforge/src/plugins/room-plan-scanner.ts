@@ -25,8 +25,10 @@ export const RoomPlanScanner = registerPlugin<RoomPlanScannerPlugin>('RoomPlanSc
         timestamp: new Date().toISOString(),
       };
     },
-    async previewScan(): Promise<void> {
+    previewScan(options: { path: string }): Promise<void> {
       // USDZ preview is not available in the browser.
+      void options;
+      return Promise.resolve();
     },
   }),
 });
