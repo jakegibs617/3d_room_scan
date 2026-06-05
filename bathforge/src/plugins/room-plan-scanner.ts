@@ -4,6 +4,7 @@ import type { RoomPlanScannerAvailability, RoomPlanScanResult } from '../types/r
 export interface RoomPlanScannerPlugin {
   getAvailability(): Promise<RoomPlanScannerAvailability>;
   startScan(): Promise<RoomPlanScanResult>;
+  previewScan(options: { path: string }): Promise<void>;
 }
 
 export const RoomPlanScanner = registerPlugin<RoomPlanScannerPlugin>('RoomPlanScanner', {
@@ -23,6 +24,11 @@ export const RoomPlanScanner = registerPlugin<RoomPlanScannerPlugin>('RoomPlanSc
         message: 'RoomPlan scanning is only available in the native iOS app.',
         timestamp: new Date().toISOString(),
       };
+    },
+    previewScan(options: { path: string }): Promise<void> {
+      // USDZ preview is not available in the browser.
+      void options;
+      return Promise.resolve();
     },
   }),
 });

@@ -1,20 +1,24 @@
 import Capacitor
 import Foundation
+import QuickLook
 import RoomPlan
 import UIKit
 
 @objc(RoomPlanScannerPlugin)
-public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanViewControllerDelegate {
+public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanViewControllerDelegate, QLPreviewControllerDataSource, QLPreviewControllerDelegate {
     public let identifier = "RoomPlanScannerPlugin"
     public let jsName = "RoomPlanScanner"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "getAvailability", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "startScan", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "startScan", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "previewScan", returnType: CAPPluginReturnPromise)
     ]
 
     private static let timestampFormatter = ISO8601DateFormatter()
 
     private var scanCall: CAPPluginCall?
+    private var previewCall: CAPPluginCall?
+    private var previewURL: URL?
 
     @objc func getAvailability(_ call: CAPPluginCall) {
         call.resolve(scannerAvailability())
@@ -175,6 +179,58 @@ public class RoomPlanScannerPlugin: CAPPlugin, CAPBridgedPlugin, RoomPlanScanVie
         }
 
         return result
+    }
+
+    @objc func previewScan(_ call: CAPPluginCall) {
+        guard previewCall == nil else {
+            call.reject("A preview is already active.")
+            return
+        }
+
+        guard let filePath = call.getString("path") else {
+            call.reject("Missing required parameter: path")
+            return
+        }
+
+        guard FileManager.default.fileExists(atPath: filePath) else {
+            call.reject("File not found at path: \(filePath)")
+            return
+        }
+
+        previewCall = call
+        previewURL = URL(fileURLWithPath: filePath)
+
+        DispatchQueue.main.async {
+            guard let presentingViewController = self.bridge?.viewController else {
+                self.previewCall = nil
+                self.previewURL = nil
+                call.reject("Unable to find a view controller to present the preview.")
+                return
+            }
+
+            let previewController = QLPreviewController()
+            previewController.dataSource = self
+            previewController.delegate = self
+            presentingViewController.present(previewController, animated: true)
+        }
+    }
+
+    public func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+        return previewURL != nil ? 1 : 0
+    }
+
+    public func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        guard let url = previewURL else {
+            return URL(fileURLWithPath: "") as NSURL
+        }
+
+        return url as NSURL
+    }
+
+    public func previewControllerDidDismiss(_ controller: QLPreviewController) {
+        previewCall?.resolve()
+        previewCall = nil
+        previewURL = nil
     }
 
     private func scannerAvailability() -> [String: Any] {
