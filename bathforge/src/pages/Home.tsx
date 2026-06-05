@@ -12,7 +12,6 @@ import {
   IonList,
   IonPage,
   IonSpinner,
-  IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
@@ -144,6 +143,15 @@ const Home: React.FC = () => {
     setRecentScans([]);
   };
 
+  const previewScan = async (path: string) => {
+    try {
+      await RoomPlanScanner.previewScan({ path });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to preview the scan.';
+      setErrorMessage(message);
+    }
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -193,17 +201,23 @@ const Home: React.FC = () => {
             </IonCard>
           )}
 
-          {scanResult && (
+          {scanResult?.success && (
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>
-                  {scanResult.success ? 'Scan Result' : 'Scan Response'}
-                </IonCardTitle>
+                <IonCardTitle>Scan Complete</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
-                <IonText>
-                  <pre>{JSON.stringify(scanResult, null, 2)}</pre>
-                </IonText>
+                {scanResult.wallCount !== undefined && (
+                  <p>{scanResult.wallCount} walls · {scanResult.objectCount ?? 0} objects detected</p>
+                )}
+                {scanResult.usdzPath && (
+                  <IonButton
+                    expand="block"
+                    onClick={() => previewScan(scanResult!.usdzPath!)}
+                  >
+                    Preview 3D Model
+                  </IonButton>
+                )}
               </IonCardContent>
             </IonCard>
           )}
